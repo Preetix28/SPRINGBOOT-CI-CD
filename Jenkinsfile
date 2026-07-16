@@ -8,12 +8,13 @@ podTemplate(
             ttyEnabled: true
         ),
 
-        // containerTemplate(
-        //     name: 'kaniko',
-        //     image: 'gcr.io/kaniko-project/executor:latest',
-        //     command: '/busybox/cat',
-        //     ttyEnabled: true
-        // ),
+        containerTemplate(
+            name: 'kaniko',
+            image: 'gcr.io/kaniko-project/executor:debug',
+            command: '/busybox/sh',
+            args: '-c cat',
+            ttyEnabled: true
+        ),
 
         containerTemplate(
             name: 'kubectl',
