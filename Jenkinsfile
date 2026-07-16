@@ -1,34 +1,47 @@
-pipeline {
-    agent any
+podTemplate(
+    containers: [
 
-    stages {
+        containerTemplate(
+            name: 'maven',
+            image: 'maven:3.9.9-eclipse-temurin-21',
+            command: 'cat',
+            ttyEnabled: true
+        ),
 
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
+        containerTemplate(
+            name: 'kaniko',
+            image: 'gcr.io/kaniko-project/executor:latest',
+            command: '/busybox/cat',
+            ttyEnabled: true
+        ),
 
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
+        containerTemplate(
+            name: 'kubectl',
+            image: 'bitnami/kubectl:latest',
+            command: 'cat',
+            ttyEnabled: true
+        )
 
-        stage('Package') {
-            steps {
-                sh 'mvn clean package'
-            }
+    ]
+) {
+
+node(POD_LABEL) {
+
+    stage('Checkout') {
+        checkout scm
+    }
+
+    stage('Test') {
+        container('maven') {
+            sh 'mvn test'
         }
     }
 
-    post {
-        success {
-            echo 'Build Successful!'
-        }
-
-        failure {
-            echo 'Build Failed!'
+    stage('Package') {
+        container('maven') {
+            sh 'mvn clean package'
         }
     }
+
+}
 }
